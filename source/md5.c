@@ -39,7 +39,6 @@
 #include "egpack.h"
 
 /* Private variables */
-static unsigned int __percent = 0;
 static char         __last_md5[ MD5_DIGEST_LENGTH * 2 + 1 ];
 static FILE       * __last_fp;
 
@@ -56,9 +55,6 @@ void egpack_file_md5_checksum( FILE * fp, char * hash )
     long                offset;
     unsigned int        i;
     unsigned long       size;
-    unsigned long       read_ops;
-    unsigned long       read_op;
-    libprogressbar_args args;
     
     if( fp == __last_fp )
     {
@@ -67,21 +63,7 @@ void egpack_file_md5_checksum( FILE * fp, char * hash )
     }
     
     __last_fp = fp;
-    __percent = 0;
     size      = fsize( fp );
-    read_ops  = ceil( ( double )size / ( double )EGPACK_BUFFER_LENGTH );
-    read_op   = 0;
-    __percent = 0;
-    
-    if( libdebug_is_enabled() == false )
-    {
-        args.percent = &__percent;
-        args.length  = 50;
-        args.label   = "Checksumming: ";
-        args.done    = "[OK]";
-        
-        libprogressbar_create_progressbar( ( void * )( &args ) );
-    }
     
     offset = ftell( fp );
     
@@ -90,14 +72,7 @@ void egpack_file_md5_checksum( FILE * fp, char * hash )
     
     while( ( length = fread( tmp, sizeof( char ), EGPACK_BUFFER_LENGTH, fp ) ) )
     {
-        read_op++;
-        
         MD5_Update( &ctx, tmp, length );
-        
-        if( read_ops > 1 )
-        {
-            __percent = ( ( double )read_op / ( double )read_ops ) * 100;
-        }
     }
     
     MD5_Final( digest, &ctx );
@@ -116,8 +91,4 @@ void egpack_file_md5_checksum( FILE * fp, char * hash )
     strcpy( __last_md5, hash );
     
     fseek( fp, offset, SEEK_SET );
-    
-    __percent = 100;
-    
-    libprogressbar_end();
 }
