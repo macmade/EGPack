@@ -122,7 +122,25 @@ int main( int argc, char * argv[] )
     }
     else if( args.unarchive == true )
     {
+        if( NULL == ( fp = fopen( args.source, "rb" ) ) )
+        {
+            ERROR( "cannot open a file handle: %s", destination );
+        }
         
+        DEBUG( "Opening the file handle" );
+        DEBUG( "Beginning the un-archive process for '%s'", args.source );
+        
+        status = egpack_unarchive( fp, destination );
+        
+        DEBUG( "Closing the file handle" );
+        fclose( fp );
+        
+        if( status != EGPACK_OK )
+        {
+            printf( "Error: %s.\n", egpack_err_str( status ) );
+            
+            return EXIT_FAILURE;
+        }
     }
     else
     {

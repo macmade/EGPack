@@ -42,6 +42,19 @@
  */
 egpack_status egpack_unarchive( FILE * source, char * destination )
 {
+    egpack_header header;
+    
+    DEBUG( "Reading header" );
+    memset( &header, 0, sizeof( egpack_header ) );
+    fread( &header, sizeof( egpack_header ), 1, source );
+    
+    DEBUG( "Verifying file signature" );
+    
+    if( memcmp( &header, EGPACK_FILE_ID, 4 ) != 0 )
+    {
+        return EGPACK_ERROR_FILE_ID;
+    }
+    
     ( void )source;
     ( void )destination;
     
