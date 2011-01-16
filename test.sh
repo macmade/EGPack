@@ -1,12 +1,10 @@
 #/bin/bash/
 
-rm *.txt
-rm *.bin
 rm *.egpk
 
 clear
 
-if [ "$2" ] && [ "$2" -gt 0 ]; then
+if [ "$1" ] && [ "$1" -gt 0 ]; then
     
     ./build/bin/egpack -d -a "test-files"
     
@@ -16,12 +14,12 @@ else
     
 fi
 
-if [ "$3" ] && [ "$3" -gt 0 ]; then
+if [ "$2" ] && [ "$2" -gt 0 ]; then
     
-    ./build/bin/egpack -d -u -x "$1.egpk"
+    ./build/bin/egpack -d -u -x "test-files.egpk"
     
 else
     
-    ./build/bin/egpack -x -u "$1.egpk"
+    ./build/bin/egpack -x -u "test-files.egpk"
     
 fi

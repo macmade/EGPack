@@ -69,19 +69,19 @@ EXEC                = egpack
 # Dependancies for the executables (objects)
 #-------------------------------------------------------------------------------
 
-DEPS_egz            = archive args file help md5 unarchive
+DEPS_egpack         = archive args error file help md5 unarchive
 
 #-------------------------------------------------------------------------------
 # Dependancies for the executables (libraries)
 #-------------------------------------------------------------------------------
 
-DEPS_LIB_egz        = libdebug libio libprogressbar
+DEPS_LIB_egpack     = libdebug libio libprogressbar
 
 #-------------------------------------------------------------------------------
 # Dependancies for the executables (system libraries)
 #-------------------------------------------------------------------------------
 
-DEPS_SYSLIB_egz     = crypto
+DEPS_SYSLIB_egpack  = crypto
 
 #-------------------------------------------------------------------------------
 # Used frameworks (relevant only for Objective-C)
