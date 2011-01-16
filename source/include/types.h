@@ -45,6 +45,7 @@ extern "C" {
     
     #include <stdc/bool.h>
     #include <stdint.h>
+    #include <openssl/md5.h>
     
     /*!
      * 
@@ -96,6 +97,7 @@ extern "C" {
         uint32_t  uid;
         uint32_t  gid;
         uint8_t   pad[ 64 ];
+        uint8_t   md5[ MD5_DIGEST_LENGTH * 2 ];
     }
     egpack_header_entry_file;
     

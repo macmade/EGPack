@@ -99,6 +99,13 @@ egpack_status egpack_archive_file( char * filename, unsigned int depth, FILE * d
         return EGPACK_ERROR_STAT;
     }
     
+    DEBUG( "Opening file handle" );
+    
+    if( NULL == ( fp = fopen( filename, "rb" ) ) )
+    {
+        return EGPACK_ERROR_FOPEN;
+    }
+    
     memset( &entry, 0, sizeof( egpack_header_entry ) );
     memset( &file,  0, sizeof( egpack_header_entry_file ) );
     
@@ -121,6 +128,8 @@ egpack_status egpack_archive_file( char * filename, unsigned int depth, FILE * d
     file.mode   = stat_buf.st_mode;
     file.uid    = stat_buf.st_uid;
     file.gid    = stat_buf.st_gid;
+    
+    egpack_file_md5_checksum( fp, ( char * )&( file.md5 ) );
     
     strcpy( ( char * )( file.name ), filename + i );
     
@@ -169,13 +178,6 @@ egpack_status egpack_archive_file( char * filename, unsigned int depth, FILE * d
     
     fwrite( &entry, sizeof( egpack_header_entry ),      1, destination );
     fwrite( &file,  sizeof( egpack_header_entry_file ), 1, destination );
-    
-    DEBUG( "Opening file handle" );
-    
-    if( NULL == ( fp = fopen( filename, "rb" ) ) )
-    {
-        return EGPACK_ERROR_FOPEN;
-    }
     
     DEBUG( "Writing file data" );
     while( ( length = fread( buffer, sizeof( uint8_t ), EGPACK_BUFFER_LENGTH, fp ) ) )
