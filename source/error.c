@@ -44,7 +44,14 @@ char * egpack_err_str( egpack_status status )
 {
     switch( status )
     {
-        case EGPACK_ERROR_STAT:     return "stat error";
-        default:                    return "no error";
+        case EGPACK_OK:                 return "no error";
+        case EGPACK_ERROR_STAT:         return "stat error";
+        case EGPACK_ERROR_INVALID_FILE: return "invalid file type";
+        case EGPACK_ERROR_OPENDIR:      return "unable to open directory";
+        case EGPACK_ERROR_MALLOC:       return "malloc error";
+        case EGPACK_ERROR_FOPEN:        return "unable to open file";
+        case EGPACK_ERROR_FILE_ID:      return "invalid file ID";
+        case EGPACK_ERROR_MD5:          return "invalid MD5 checksum";
+        default:                        return "unknown error";
     }
 }

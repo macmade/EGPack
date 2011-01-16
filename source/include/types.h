@@ -120,7 +120,9 @@ extern "C" {
         EGPACK_ERROR_INVALID_FILE   = 0x02,
         EGPACK_ERROR_OPENDIR        = 0x03,
         EGPACK_ERROR_MALLOC         = 0x04,
-        EGPACK_ERROR_FOPEN          = 0x05
+        EGPACK_ERROR_FOPEN          = 0x05,
+        EGPACK_ERROR_FILE_ID        = 0x06,
+        EGPACK_ERROR_MD5            = 0x07
     }
     egpack_status;
     
