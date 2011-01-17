@@ -51,7 +51,7 @@ binary:
 ### Support
 
 EGPack documentation can be found on the eosgarden website:                     
-http://www.eosgarden.com/
+http://www.eosgarden.com/en/opensource/egpack/
 
 ### License
 
