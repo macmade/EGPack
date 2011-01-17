@@ -32,26 +32,33 @@
 /*!
  * @header      error.c
  * @copyright   eosgarden 2011 - Jean-David Gadina <macmade@eosgarden.com>
- * @abstract    ...
+ * @abstract    Error management functions
  */
 
+/* Local includes */
 #include "egpack.h"
 
 /*!
- * 
+ * @function    egpack_err_str
+ * @abstract    Gets an error message about a specific error code
+ * @param       status  The error code
+ * @return      The error message corresponding to the error code
  */
 char * egpack_err_str( egpack_status status )
 {
     switch( status )
     {
-        case EGPACK_OK:                 return "no error";
-        case EGPACK_ERROR_STAT:         return "stat error";
-        case EGPACK_ERROR_INVALID_FILE: return "invalid file type";
-        case EGPACK_ERROR_OPENDIR:      return "unable to open directory";
-        case EGPACK_ERROR_MALLOC:       return "malloc error";
-        case EGPACK_ERROR_FOPEN:        return "unable to open file";
-        case EGPACK_ERROR_FILE_ID:      return "invalid file ID";
-        case EGPACK_ERROR_MD5:          return "invalid MD5 checksum";
-        default:                        return "unknown error";
+        case EGPACK_OK:                     return "no error";
+        case EGPACK_ERROR_STAT:             return "stat error";
+        case EGPACK_ERROR_INVALID_FILE:     return "invalid file type";
+        case EGPACK_ERROR_OPENDIR:          return "unable to open directory";
+        case EGPACK_ERROR_MALLOC:           return "malloc error";
+        case EGPACK_ERROR_FOPEN:            return "unable to open file";
+        case EGPACK_ERROR_FILE_ID:          return "invalid file ID";
+        case EGPACK_ERROR_MD5:              return "invalid MD5 checksum";
+        case EGPACK_ERROR_INVALID_ENTRY:    return "invalid entry";
+        case EGPACK_ERROR_MKDIR:            return "unable to create directory";
+        case EGPACK_ERROR_CHMOD:            return "unable to apply file mode";
+        default:                            return "unknown error";
     }
 }

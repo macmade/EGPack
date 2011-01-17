@@ -32,7 +32,7 @@
 /*!
  * @header      error.h
  * @copyright   eosgarden 2011 - Jean-David Gadina <macmade@eosgarden.com>
- * @abstract    ...
+ * @abstract    Error management functions
  */
 
 #ifndef _EGPACK_ERROR_H
@@ -44,7 +44,10 @@ extern "C" {
 #endif
     
     /*!
-     * 
+     * @function    egpack_err_str
+     * @abstract    Gets an error message about a specific error code
+     * @param       status  The error code
+     * @return      The error message corresponding to the error code
      */
     char * egpack_err_str( egpack_status status );
     
