@@ -1,5 +1,6 @@
 #/bin/bash/
 
+rm -rf test-files-*
 rm *.egpk
 
 clear
