@@ -44,9 +44,33 @@ extern "C" {
 #endif
     
     /*!
-     * 
+     * @function    egpack_archive
+     * @abstract    Un-archives source file into destination path
+     * @param       source      The archive file pointer
+     * @param       destination The path in wich to write archive file(s)
+     * @result      The status code
      */
     egpack_status egpack_unarchive( FILE * source, char * destination );
+    
+    /*!
+     * @function    egpack_archive
+     * @abstract    Un-archives source file into destination directory
+     * @param       source      The archive file pointer
+     * @param       depth       The depth from the archive's root directory
+     * @param       destination The path in wich to write archive file(s)
+     * @result      The status code
+     */
+    egpack_status egpack_unarchive_dir( FILE * source, unsigned int depth, char * destination );
+    
+    /*!
+     * @function    egpack_archive
+     * @abstract    Un-archives source file into destination file
+     * @param       source      The archive file pointer
+     * @param       depth       The depth from the archive's root directory
+     * @param       destination The path in wich to write the archive file
+     * @result      The status code
+     */
+    egpack_status egpack_unarchive_file( FILE * source, unsigned int depth, char * destination );
     
 #ifdef __cplusplus
 }

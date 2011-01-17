@@ -35,29 +35,340 @@
  * @abstract    ...
  */
 
+/* Local includes */
 #include "egpack.h"
 
 /*!
- * 
+ * @function    egpack_archive
+ * @abstract    Un-archives source file into destination path
+ * @param       source      The archive file pointer
+ * @param       destination The path in wich to write archive file(s)
+ * @result      The status code
  */
 egpack_status egpack_unarchive( FILE * source, char * destination )
 {
-    egpack_header header;
+    unsigned int        length;
+    egpack_header       header;
+    egpack_header_entry entry;
+    egpack_status       status;
     
     DEBUG( "Reading header" );
+    
+    /* Header initialization */
     memset( &header, 0, sizeof( egpack_header ) );
-    fread( &header, sizeof( egpack_header ), 1, source );
+    memset( &entry,  0, sizeof( egpack_header_entry ) );
+    fread( &header,     sizeof( egpack_header ), 1, source );
     
     DEBUG( "Verifying file signature" );
     
+    /* Verifies the file signature */
     if( memcmp( &header, EGPACK_FILE_ID, 4 ) != 0 )
     {
         return EGPACK_ERROR_FILE_ID;
     }
     
-    ( void )source;
-    ( void )destination;
+    DEBUG( "Archive creation time: %u", header.ctime );
+    
+    /* Reads an EPGK entry */
+    while( ( length = fread( &entry, sizeof( egpack_header_entry ), 1, source ) ) )
+    {
+        /* Checks the entry type */
+        if( entry.type == EGPACK_ENTRY_TYPE_FILE )
+        {
+            DEBUG( "Un-archiving file" );
+            
+            /* Un-archives a regular file */
+            status = egpack_unarchive_file( source, entry.depth, destination );
+            
+            if( status != EGPACK_OK )
+            {
+                return status;
+            }
+        }
+        else if( entry.type == EGPACK_ENTRY_TYPE_DIR )
+        {
+            DEBUG( "Un-archiving directory" );
+            
+            /* Unarchives a directory */
+            status = egpack_unarchive_dir( source, entry.depth, destination );
+            
+            if( status != EGPACK_OK )
+            {
+                return status;
+            }
+        }
+        else
+        {
+            /* Invalid file format */
+            return EGPACK_ERROR_INVALID_ENTRY;
+        }
+    }
     
     return EGPACK_OK;
 }
+
+/*!
+ * @function    egpack_archive
+ * @abstract    Un-archives source file into destination directory
+ * @param       source      The archive file pointer
+ * @param       depth       The depth from the archive's root directory
+ * @param       destination The path in wich to write archive file(s)
+ * @result      The status code
+ */
+egpack_status egpack_unarchive_dir( FILE * source, unsigned int depth, char * destination )
+{
+    egpack_status           status;
+    egpack_header_entry_dir dir;
+    egpack_header_entry     entry;
+    size_t                  path_length;
+    unsigned int            length;
+    char                    dirname[ EGPK_FILENAME_MAX ];
+    char                  * filename;
     
+    /* Initialization */
+    memset( &dir,     0, sizeof( egpack_header_entry_dir ) );
+    memset( &entry,   0, sizeof( egpack_header_entry ) );
+    memset( &dirname, 0, EGPK_FILENAME_MAX );
+    
+    /* Reads the directory entry */
+    fread(  &dir, sizeof( egpack_header_entry_dir ), 1, source );
+    
+    /* Path length for subfiles */
+    path_length = strlen( dirname ) + EGPK_FILENAME_MAX + 2;
+    
+    /* Allocates memory for the subfiles paths */
+    if( NULL == ( filename = calloc( sizeof( char ), path_length ) ) )
+    {
+        return EGPACK_ERROR_MALLOC;
+    }
+    
+    /* Removes the training slash */
+    dir.name[ strlen( ( char * )( dir.name ) ) - 1 ] = 0;
+    
+    /* Full path for the directory */
+    memset( filename, 0, path_length );
+    strcpy( filename, destination );
+    strcat( filename, EGPACK_DIR_SEPARATOR );
+    strcat( filename, ( char * )( dir.name ) );
+    
+    /* Gets the destination directory name */
+    if( depth == 0 )
+    {
+        egpack_get_destination_filename( destination, dirname, false );
+    }
+    else
+    {
+        strcpy( ( char * )&dirname, destination );
+    }
+    
+    DEBUG
+    (
+        "Directory infos: %s\n"
+        "    - Base name:         %s\n"
+        "    - Depth:             %u\n"
+        "    - Creation time:     %lu\n"
+        "    - Modification time: %lu\n"
+        "    - Access time:       %lu\n"
+        "    - Mode:              0x%X\n"
+        "    - UID:               %u\n"
+        "    - GID:               %u",
+        ( depth == 0 ) ? destination : filename,
+        dir.name,
+        depth,
+        dir.ctime,
+        dir.mtime,
+        dir.atime,
+        dir.mode,
+        dir.uid,
+        dir.gid
+    );
+    DEBUG( "Creating directory: %s", ( depth == 0 ) ? destination : filename );
+    
+    /* Creates the directory */
+    if( mkdir( ( depth == 0 ) ? destination : filename, dir.mode ) != 0 )
+    {
+        free( filename );
+        return EGPACK_ERROR_MKDIR;
+    }
+    
+    /* Reads the next archive entry */
+    while( ( length = fread( &entry, sizeof( egpack_header_entry ), 1, source ) ) )
+    {
+        /* Checks if the entry belongs to the current directory */
+        if( entry.depth <= depth )
+        {
+            /* Entry has not the same depth, and will be processed by the calling function */
+            fseek( source, -( sizeof( egpack_header_entry ) ), SEEK_CUR );
+            
+            return EGPACK_OK;
+        }
+        
+        /* Checks the entry type */
+        if( entry.type == EGPACK_ENTRY_TYPE_FILE )
+        {
+            DEBUG( "Un-archiving file" );
+            
+            /* Un-archives a regular file */
+            status = egpack_unarchive_file( source, entry.depth, ( depth == 0 ) ? destination : filename );
+            
+            if( status != EGPACK_OK )
+            {
+                free( filename );
+                return status;
+            }
+        }
+        else if( entry.type == EGPACK_ENTRY_TYPE_DIR )
+        {
+            DEBUG( "Un-archiving directory" );
+            
+            /* Un-archives a directory */
+            status = egpack_unarchive_dir( source, entry.depth, ( depth == 0 ) ? destination : filename );
+            
+            if( status != EGPACK_OK )
+            {
+                free( filename );
+                return status;
+            }
+        }
+        else
+        {
+            free( filename );
+            return EGPACK_ERROR_INVALID_ENTRY;
+        }
+    }
+    
+    free( filename );
+    return EGPACK_OK;
+}
+
+/*!
+ * @function    egpack_archive
+ * @abstract    Un-archives source file into destination file
+ * @param       source      The archive file pointer
+ * @param       depth       The depth from the archive's root directory
+ * @param       destination The path in wich to write the archive file
+ * @result      The status code
+ */
+egpack_status egpack_unarchive_file( FILE * source, unsigned int depth, char * destination )
+{
+    FILE                   * fp;
+    egpack_header_entry_file file;
+    char                   * filename;
+    size_t                   path_length;
+    double                   hsize;
+    char                     unit[ 3 ] = { 0, 0, 0 };
+    unsigned long            bytes;
+    unsigned int             read_ops;
+    unsigned int             i;
+    uint8_t                  buffer[ EGPACK_BUFFER_LENGTH ];
+    
+    /* Reads the file entry */
+    memset( &file, 0, sizeof( egpack_header_entry_file ) );
+    fread(  &file,    sizeof( egpack_header_entry_file ), 1, source );
+    
+    /* Length for the file path */
+    path_length = strlen( destination ) + EGPK_FILENAME_MAX + 2;
+    
+    /* Allocates memory for the file path */
+    if( NULL == ( filename = calloc( sizeof( char ), path_length ) ) )
+    {
+        return EGPACK_ERROR_MALLOC;
+    }
+    
+    /* Full file path */
+    memset( filename, 0, path_length );
+    strcpy( ( char * )filename, destination );
+    strcat( ( char * )filename, EGPACK_DIR_SEPARATOR );
+    strcat( ( char * )filename, ( char * )( file.name ) );
+    
+    /* Debug only - Human readable size */
+    if( file.size < 1000000 )
+    {
+        /* Kilo-bytes */
+        hsize = ( double )file.size / ( double )1000;
+        
+        strcpy( unit, "KB" );
+    }
+    else if( file.size < 1000000000 )
+    {
+        /* Mega-bytes */
+        hsize = ( ( double )file.size / ( double )1000 ) / ( double )1000;
+        
+        strcpy( unit, "MB" );
+    }
+    else
+    {
+        /* Giga-bytes */
+        hsize = ( ( ( double )file.size / ( double )1000 ) / ( double )1000 ) / ( double )1000;
+        
+        strcpy( unit, "GB" );
+    }
+    
+    DEBUG
+    (
+        "File infos: %s\n"
+        "    - Base name:         %s\n"
+        "    - Depth:             %u\n"
+        "    - Size:              %.02f %s\n"
+        "    - Creation time:     %lu\n"
+        "    - Modification time: %lu\n"
+        "    - Access time:       %lu\n"
+        "    - Mode:              0x%X\n"
+        "    - UID:               %u\n"
+        "    - GID:               %u\n"
+        "    - MD5:               %s",
+        ( depth == 0 ) ? destination : filename,
+        file.name,
+        depth,
+        hsize,
+        unit,
+        file.ctime,
+        file.mtime,
+        file.atime,
+        file.mode,
+        file.uid,
+        file.gid,
+        file.md5
+    );
+    
+    DEBUG( "Opening file handle: %s", ( depth == 0 ) ? destination : filename );
+    
+    /* Opens a file handle */
+    if( NULL == ( fp = fopen( ( depth == 0 ) ? destination : filename, "wb" ) ) )
+    {
+        free( filename );
+        return EGPACK_ERROR_FOPEN;
+    }
+    
+    DEBUG( "Applying file mode" );
+    
+    /* Applies the file mode */
+    if( chmod( ( depth == 0 ) ? destination : filename, ( mode_t )file.mode ) != 0 )
+    {
+        return EGPACK_ERROR_CHMOD;
+    }
+    
+    DEBUG( "Writing file data" );
+    
+    /* Number of read operations to write the file's content */
+    bytes    = file.size;
+    read_ops = floor( ( double )( file.size ) / ( double )EGPACK_BUFFER_LENGTH );
+    
+    /* Reads from the archives and writes the file */
+    for( i = 0; i < read_ops; i++ )
+    {
+        fread( buffer, sizeof( uint8_t ), EGPACK_BUFFER_LENGTH, source );
+        fwrite( buffer, sizeof( uint8_t ), EGPACK_BUFFER_LENGTH, fp );
+        
+        bytes -= EGPACK_BUFFER_LENGTH;
+    }
+    
+    /* Writes remaining data, if any */
+    fread( buffer, sizeof( uint8_t ), bytes, source );
+    fwrite( buffer, sizeof( uint8_t ), bytes, fp );
+    
+    DEBUG( "Closing file handle" );
+    fclose( fp );
+    
+    return EGPACK_OK;
+}
