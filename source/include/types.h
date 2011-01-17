@@ -43,12 +43,20 @@
 extern "C" {
 #endif
     
+    /* System includes */
     #include <stdc/bool.h>
     #include <stdint.h>
     #include <openssl/md5.h>
     
     /*!
-     * 
+     * @typedef     egpack_cli_args
+     * @abstract    Command line arguments
+     * @field       archive     Whether to archive the source file
+     * @field       unarchive   Whether to un-archive the source file
+     * @field       version     Whether to display the program's version number
+     * @filed       help        Whether to display the help dialog
+     * @field       debug       Whether to enable the debug mode
+     * @field       source      Source file to archive or un-archive
      */
     typedef struct _egpack_cli_args
     {
@@ -62,7 +70,11 @@ extern "C" {
     egpack_cli_args;
     
     /*!
-     * 
+     * @typedef     egpack_header
+     * @abstract    EGPK file header
+     * @field       id      File signature
+     * @field       ctime   Archive creation time
+     * @field       pad     Reserved bits
      */
     typedef struct _egpack_header
     {
@@ -73,7 +85,11 @@ extern "C" {
     egpack_header;
     
     /*!
-     * 
+     * @typedef     egpack_header_entry
+     * @abstract    EGPK entry header
+     * @field       type    Type of the entry (egpack_entry_type)
+     * @field       depth   Depth from the archive's root directory
+     * @field       pad     Reserved bits
      */
     typedef struct _egpack_header_entry
     {
@@ -84,12 +100,62 @@ extern "C" {
     egpack_header_entry;
     
     /*!
-     * 
+     * @typedef     egpack_entry_type
+     * @abstract    EGPK entry type
+     * @constant    EGPACK_ENTRY_TYPE_FILE  
+     * @constant    EGPACK_ENTRY_TYPE_DIR   
+     */
+    typedef enum
+    {
+        EGPACK_ENTRY_TYPE_FILE  = 0x00,
+        EGPACK_ENTRY_TYPE_DIR   = 0x01
+    }
+    egpack_entry_type;
+    
+    /*!
+     * @typedef     egpack_header_entry_file
+     * @abstract    EGPK file entry header
+     * @field       name    File name
+     * @field       size    File size in bytes
+     * @field       ctime   Creation time
+     * @field       mtime   Last modification time
+     * @field       atime   Last access time
+     * @field       mode    File mode
+     * @field       uid     User ID
+     * @field       gif     Group ID
+     * @field       md5     File MD5 checksum
+     * @field       pad     Reserved bits
      */
     typedef struct _egpack_header_entry_file
     {
-        uint8_t   name[ FILENAME_MAX ];
-        uint32_t  size;
+        uint8_t   name[ EGPK_FILENAME_MAX ];
+        uint64_t  size;
+        uint32_t  ctime;
+        uint32_t  mtime;
+        uint32_t  atime;
+        uint32_t  mode;
+        uint32_t  uid;
+        uint32_t  gid;
+        uint8_t   md5[ 32 ];
+        uint8_t   pad[ 64 ];
+    }
+    egpack_header_entry_file;
+    
+    /*!
+     * @typedef     egpack_header_entry_dir
+     * @abstract    EGPK directory entry header
+     * @field       name    Directory name
+     * @field       ctime   Creation time
+     * @field       mtime   Last modification time
+     * @field       atime   Last access time
+     * @field       mode    Directory mode
+     * @field       uid     User ID
+     * @field       gif     Group ID
+     * @field       pad     Reserved bits
+     */
+    typedef struct _egpack_header_entry_dir
+    {
+        uint8_t   name[ EGPK_FILENAME_MAX ];
         uint32_t  ctime;
         uint32_t  mtime;
         uint32_t  atime;
@@ -97,21 +163,23 @@ extern "C" {
         uint32_t  uid;
         uint32_t  gid;
         uint8_t   pad[ 64 ];
-        uint8_t   md5[ MD5_DIGEST_LENGTH * 2 ];
-    }
-    egpack_header_entry_file;
-    
-    /*!
-     * 
-     */
-    typedef struct _egpack_header_entry_dir
-    {
-        uint8_t  name[ FILENAME_MAX ];
     }
     egpack_header_entry_dir;
     
     /*!
-     * 
+     * @typedef     egpack_status
+     * @abstract    EGPK status codes
+     * constant     EGPACK_OK                       No error
+     * constant     EGPACK_ERROR_STAT               Error with the stat() function
+     * constant     EGPACK_ERROR_INVALID_FILE       Invalid EGPK file
+     * constant     EGPACK_ERROR_OPENDIR            Error with the opendir() function
+     * constant     EGPACK_ERROR_MALLOC             Error with the memory allocation functions
+     * constant     EGPACK_ERROR_FOPEN              Error with the fopen() function
+     * constant     EGPACK_ERROR_FILE_ID            Invalid file signature
+     * constant     EGPACK_ERROR_MD5                Invalid MD5 checksum
+     * constant     EGPACK_ERROR_INVALID_ENTRY      Invalid file entry
+     * constant     EGPACK_ERROR_MKDIR              Error with the mkdir() function
+     * constant     EGPACK_ERROR_CHMOD              Error with the chmod() function
      */
     typedef enum
     {
@@ -122,7 +190,10 @@ extern "C" {
         EGPACK_ERROR_MALLOC         = 0x04,
         EGPACK_ERROR_FOPEN          = 0x05,
         EGPACK_ERROR_FILE_ID        = 0x06,
-        EGPACK_ERROR_MD5            = 0x07
+        EGPACK_ERROR_MD5            = 0x07,
+        EGPACK_ERROR_INVALID_ENTRY  = 0x08,
+        EGPACK_ERROR_MKDIR          = 0x09,
+        EGPACK_ERROR_CHMOD          = 0x0A
     }
     egpack_status;
     
