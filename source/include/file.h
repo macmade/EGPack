@@ -32,7 +32,7 @@
 /*!
  * @header      file.h
  * @copyright   eosgarden 2011 - Jean-David Gadina <macmade@eosgarden.com>
- * @abstract    ...
+ * @abstract    File related functions
  */
 
 #ifndef _EGPACK_FILE_H

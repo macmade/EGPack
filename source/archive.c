@@ -32,7 +32,7 @@
 /*!
  * @header      archive.c
  * @copyright   eosgarden 2011 - Jean-David Gadina <macmade@eosgarden.com>
- * @abstract    ...
+ * @abstract    Archiving functions
  */
 
 /* Local includes */

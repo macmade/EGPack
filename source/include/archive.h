@@ -32,7 +32,7 @@
 /*!
  * @header      archive.h
  * @copyright   eosgarden 2011 - Jean-David Gadina <macmade@eosgarden.com>
- * @abstract    ...
+ * @abstract    Archiving functions
  */
 
 #ifndef _EGPACK_COMPRESS_H_

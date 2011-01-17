@@ -32,7 +32,7 @@
 /*!
  * @header      unarchive.h
  * @copyright   eosgarden 2011 - Jean-David Gadina <macmade@eosgarden.com>
- * @abstract    ...
+ * @abstract    Un-archiving functions
  */
 
 #ifndef _EGPACK_EXPAND_H_
