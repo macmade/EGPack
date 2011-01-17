@@ -44,19 +44,33 @@ extern "C" {
 #endif
     
     /*!
-     * 
+     * @function    egpack_archive
+     * @abstract    Archives source path into destination file
+     * @param       source      The path to archive
+     * @param       destination The archive file pointer
+     * @result      The status code
      */
     egpack_status egpack_archive( char * path, FILE * destination );
-
-    /*!
-     * 
-     */
-    egpack_status egpack_archive_file( char * filename, unsigned int depth, FILE * destination );
     
     /*!
-     * 
+     * @function    egpack_archive_dir
+     * @abstract    Archives a complete directory into destination file
+     * @param       dirname     The name of the directory
+     * @param       depth       The depth from the archive's root directory
+     * @param       destination The archive file pointer
+     * @result      The status code
      */
     egpack_status egpack_archive_dir( char * dirname, unsigned int depth, FILE * destination );
+
+    /*!
+     * @function    egpack_archive_dir
+     * @abstract    Archives a single file into destination file
+     * @param       dirname     The name of the file
+     * @param       depth       The depth from the archive's root directory
+     * @param       destination The archive file pointer
+     * @result      The status code
+     */
+    egpack_status egpack_archive_file( char * filename, unsigned int depth, FILE * destination );
     
 #ifdef __cplusplus
 }
