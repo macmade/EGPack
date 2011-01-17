@@ -43,10 +43,16 @@
 extern "C" {
 #endif
     
+    /* Local includes */
     #include "stdc/bool.h"
     
     /*!
-     * 
+     * @function    egpack_get_destination_filename
+     * @abstract    Gets a valid destination filename
+     * @param       source      The original filename
+     * @param       filename    A pointer to store the final filename
+     * @param       archive     Whether we are running an archive or un-archive process
+     * @result      True if a file name was created, otherwise false
      */
     bool egpack_get_destination_filename( char * source, char * filename, bool archive );
 

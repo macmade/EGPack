@@ -35,23 +35,31 @@
  * @abstract    Program's main functions
  */
 
+/* Local includes */
 #include "eos-skl/eos-skl.h"
 #include "egpack.h"
 
 /*!
- * 
+ * @function    main
+ * @abstract    Program's entry point
+ * @param       argc    The number of CLI arguments
+ * @param       argv    A array with the CLI arguments
+ * @result      The program's exit status
  */
 int main( int argc, char * argv[] )
 {
     FILE          * fp;
     egpack_cli_args args;
     egpack_status   status;
-    char            destination[ FILENAME_MAX ];
+    char            destination[ EGPK_FILENAME_MAX ];
     
+    /* Process the CLI arguments */
     egpack_get_cli_args( argc, argv, &args );
     
+    /* Checks if the CLI arguments are valid */
     if( args.version == true )
     {
+        /* Prints the version number and exit */
         egpack_print_version( argv[ 0 ] );
         
         return EXIT_SUCCESS;
@@ -64,11 +72,13 @@ int main( int argc, char * argv[] )
         || ( args.archive == false && args.unarchive == false )
     )
     {
+        /* Invalid arguments - Prints the help dialog and exit */
         egpack_help( argv[ 0 ] );
         
         return EXIT_SUCCESS;
     }
     
+    /* Turns on the debugging mode if needed */
     if( args.debug == true )
     {
         libdebug_enable();
@@ -92,12 +102,15 @@ int main( int argc, char * argv[] )
         ( args.source    != NULL ) ? args.source : "N/A"
     );
     
-    memset( destination, 0, FILENAME_MAX );
+    /* Gets the destination filename */
+    memset( destination, 0, EGPK_FILENAME_MAX );
     egpack_get_destination_filename( args.source, destination, ( args.archive == true ) ? true : false );
     DEBUG( "Destination filename: %s", destination );
     
+    /* Checks if the source must be archived or un-archived */
     if( args.archive == true )
     {
+        /* Opens a file pointer for the destination file */
         if( NULL == ( fp = fopen( destination, "wb" ) ) )
         {
             ERROR( "cannot open a file handle: %s", destination );
@@ -106,13 +119,16 @@ int main( int argc, char * argv[] )
         DEBUG( "Opening the file handle" );
         DEBUG( "Beginning the archive process for '%s'", args.source );
         
+        /* Archive the source */
         status = egpack_archive( args.source, fp );
         
         DEBUG( "Closing the file handle" );
         fclose( fp );
         
+        /* Checks the return status */
         if( status != EGPACK_OK )
         {
+            /* Error - Removes the destination file */
             DEBUG( "Removing destination file" );
             remove( destination );
             printf( "Error: %s.\n", egpack_err_str( status ) );
@@ -122,6 +138,7 @@ int main( int argc, char * argv[] )
     }
     else if( args.unarchive == true )
     {
+        /* Opens a file pointer for the source file */
         if( NULL == ( fp = fopen( args.source, "rb" ) ) )
         {
             ERROR( "cannot open a file handle: %s", destination );
@@ -130,11 +147,13 @@ int main( int argc, char * argv[] )
         DEBUG( "Opening the file handle" );
         DEBUG( "Beginning the un-archive process for '%s'", args.source );
         
+        /* Un-archive the source */
         status = egpack_unarchive( fp, destination );
         
         DEBUG( "Closing the file handle" );
         fclose( fp );
         
+        /* Checks the return status */
         if( status != EGPACK_OK )
         {
             printf( "Error: %s.\n", egpack_err_str( status ) );

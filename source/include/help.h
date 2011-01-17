@@ -32,7 +32,7 @@
 /*!
  * @file        help.h
  * @copyright   eosgarden 2011 - Jean-David Gadina <macmade@eosgarden.com>
- * @abstract    ...
+ * @abstract    Help functions
  */
 
 #ifndef _EGPACK_HELP_H_
@@ -44,14 +44,20 @@ extern "C" {
 #endif
     
     /*!
-     * 
+     * @function    egpack_help
+     * @abstract    Prints the help dialog
+     * @param       exec    The executable name
+     * @result      void
      */
     void egpack_help( char * exec );
     
     /*!
-     * 
+     * @function    egpack_print_version
+     * @abstract    Prints the program's version number
+     * @param       exec    The executable name
+     * @result      void
      */
-    void egpack_print_version( char * name );
+    void egpack_print_version( char * exec );
     
 #ifdef __cplusplus
 }

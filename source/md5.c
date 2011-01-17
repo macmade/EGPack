@@ -43,52 +43,64 @@ static char         __last_md5[ MD5_DIGEST_LENGTH * 2 + 1 ];
 static FILE       * __last_fp;
 
 /*!
- * 
+ * @function    egpack_file_md5_checksum
+ * @abstract    Gets a MD5 checksum of a file pointer
+ * @param       fp      The file pointer
+ * @param       hash    Character buffer (32 bytes minimum)
+ * @result      void
  */
 void egpack_file_md5_checksum( FILE * fp, char * hash )
 {
     MD5_CTX             ctx;
     size_t              length;
-    unsigned char       digest[ MD5_DIGEST_LENGTH ];
-    char                tmp[ EGPACK_BUFFER_LENGTH ];
-    char                hex[ 3 ];
     long                offset;
     unsigned int        i;
     unsigned long       size;
+    unsigned char       digest[ MD5_DIGEST_LENGTH ];
+    char                tmp[ EGPACK_BUFFER_LENGTH ];
+    char                hex[ 3 ] = { 0, 0, 0 };
     
+    /* Checks if the last checksum can be used */
     if( fp == __last_fp )
     {
         strcpy( hash, __last_md5 );
         return;
     }
     
+    /* Stores the address of the file pointer */
     __last_fp = fp;
+    
+    /* File size and current offset */
     size      = fsize( fp );
+    offset    = ftell( fp );
     
-    offset = ftell( fp );
-    
+    /* Seeks to the beginning of the file */
     fseek( fp, 0, SEEK_SET );
+    
+    /* MD5 initialization */
     MD5_Init( &ctx );
     
+    /* Reads the file's data */
     while( ( length = fread( tmp, sizeof( char ), EGPACK_BUFFER_LENGTH, fp ) ) )
     {
+        /* Updates the MD5 data */
         MD5_Update( &ctx, tmp, length );
     }
     
+    /* MD5 end */
     MD5_Final( digest, &ctx );
     
-    hex[ 3 ] = 0;
-    
+    /* Process each byte of the MD5 digest */
     for( i = 0; i < MD5_DIGEST_LENGTH; i++ )
     {
+        /* Human readable MD5 (hexadecimal) */
         sprintf( hex, "%02x", digest[ i ] );
         strcat( hash, hex );
-        hash += 2;
     }
     
-    hash -= MD5_DIGEST_LENGTH * 2;
-    
+    /* Copies the MD5 hash */
     strcpy( __last_md5, hash );
     
+    /* Seeks to the original position */
     fseek( fp, offset, SEEK_SET );
 }

@@ -47,7 +47,11 @@ extern "C" {
 #endif
 
     /*!
-     * 
+     * @function    egpack_file_md5_checksum
+     * @abstract    Gets a MD5 checksum of a file pointer
+     * @param       fp      The file pointer
+     * @param       hash    Character buffer (2x MD5_DIGEST_LENGTH)
+     * @result      void
      */
     void egpack_file_md5_checksum( FILE * fp, char * hash );
 

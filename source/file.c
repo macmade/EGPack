@@ -35,12 +35,18 @@
  * @abstract    ...
  */
 
+/* Local includes */
 #include "egpack.h"
 
 /*!
- * 
+ * @function    egpack_get_destination_filename
+ * @abstract    Gets a valid destination filename
+ * @param       source      The original filename
+ * @param       filename    A pointer to store the final filename
+ * @param       archive     Whether we are running an archive or un-archive process
+ * @result      True if a file name was created, otherwise false
  */
-bool egpack_get_destination_filename( char * source, char * filename, bool compress )
+bool egpack_get_destination_filename( char * source, char * filename, bool archive )
 {
     int    i;
     size_t length;
@@ -69,10 +75,10 @@ bool egpack_get_destination_filename( char * source, char * filename, bool compr
     length = strlen( basename );
     
     /* Resets the buffer */
-    memset( filename, 0, FILENAME_MAX );
+    memset( filename, 0, EGPK_FILENAME_MAX );
     
     /* Checks if we need to remove or add the file extension */
-    if( compress == true )
+    if( archive == true )
     {
         /* Copies the file name and add the extension */
         add_ext = true;
@@ -109,7 +115,7 @@ bool egpack_get_destination_filename( char * source, char * filename, bool compr
         if( add_ext == false )
         {
             /* Not enough space for the filename */
-            if( strlen( suffix ) + length - length_ext > FILENAME_MAX )
+            if( strlen( suffix ) + length - length_ext > EGPK_FILENAME_MAX )
             {
                 break;
             }
@@ -121,7 +127,7 @@ bool egpack_get_destination_filename( char * source, char * filename, bool compr
         else
         {
             /* Not enough space for the filename */
-            if( strlen( suffix ) + length + length_ext > FILENAME_MAX )
+            if( strlen( suffix ) + length + length_ext > EGPK_FILENAME_MAX )
             {
                 break;
             }

@@ -32,13 +32,17 @@
 /*!
  * @file        help.c
  * @copyright   eosgarden 2011 - Jean-David Gadina <macmade@eosgarden.com>
- * @abstract    ...
+ * @abstract    Help functions
  */
 
+/* Local includes */
 #include "egpack.h"
 
 /*!
- * 
+ * @function    egpack_help
+ * @abstract    Prints the help dialog
+ * @param       exec    The executable name
+ * @result      void
  */
 void egpack_help( char * exec )
 {
@@ -64,9 +68,12 @@ void egpack_help( char * exec )
 }
 
 /*!
- * 
+ * @function    egpack_print_version
+ * @abstract    Prints the program's version number
+ * @param       exec    The executable name
+ * @result      void
  */
-void egpack_print_version( char * name )
+void egpack_print_version( char * exec )
 {
-    printf( "%s version: %s\n", name, EGPACK_VERSION );
+    printf( "%s version: %s\n", exec, EGPACK_VERSION );
 }

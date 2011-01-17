@@ -35,10 +35,16 @@
  * @abstract    CLI arguments functions
  */
 
+/* Local includes */
 #include "egpack.h"
 
 /*!
- * 
+ * @function    egpack_get_cli_args
+ * @abstract    Process The CLI arguments
+ * @param       argc    The number of CLI arguments
+ * @param       argv    A pointer to the CLI arguments
+ * @param       args    The CLI arguments structure
+ * @result      void
  */
 void egpack_get_cli_args( int argc, char ** argv, egpack_cli_args * args )
 {
