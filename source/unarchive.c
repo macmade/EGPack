@@ -274,6 +274,7 @@ egpack_status egpack_unarchive_file( FILE * source, unsigned int depth, char * d
     unsigned int             read_ops;
     unsigned int             i;
     uint8_t                  buffer[ EGPACK_BUFFER_LENGTH ];
+    unsigned char            md5[ MD5_DIGEST_LENGTH * 2 + 1 ];
     
     /* Reads the file entry */
     memset( &file, 0, sizeof( egpack_header_entry_file ) );
@@ -347,7 +348,7 @@ egpack_status egpack_unarchive_file( FILE * source, unsigned int depth, char * d
     DEBUG( "Opening the file handle: %s", ( depth == 0 ) ? destination : filename );
     
     /* Opens a file handle */
-    if( NULL == ( fp = fopen( ( depth == 0 ) ? destination : filename, "wb" ) ) )
+    if( NULL == ( fp = fopen( ( depth == 0 ) ? destination : filename, "ab+" ) ) )
     {
         free( filename );
         return EGPACK_ERROR_FOPEN;
@@ -379,6 +380,17 @@ egpack_status egpack_unarchive_file( FILE * source, unsigned int depth, char * d
     /* Writes remaining data, if any */
     fread( buffer, sizeof( uint8_t ), bytes, source );
     fwrite( buffer, sizeof( uint8_t ), bytes, fp );
+    
+    /* Gets the MD5 checksum */
+    egpack_file_md5_checksum( fp, ( char * )md5 );
+    DEBUG( "Verifiying the MD5 checksum: %s", md5 );
+    
+    /* Checks the MD5 checksum */
+    if( strcmp( ( char * )md5, ( char * )( file.md5 ) ) != 0 )
+    {
+        fclose( fp );
+        return EGPACK_ERROR_MD5;
+    }
     
     DEBUG( "Closing the file handle" );
     fclose( fp );
