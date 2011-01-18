@@ -52,7 +52,7 @@ egpack_status egpack_archive( char * source, FILE * destination )
     egpack_header            header;
     
     /* Gets informations about to file to archive */
-    if( stat( source, &stat_buf ) != 0 )
+    if( lstat( source, &stat_buf ) != 0 )
     {
         return EGPACK_ERROR_STAT;
     }
@@ -78,6 +78,13 @@ egpack_status egpack_archive( char * source, FILE * destination )
     else if( S_ISREG( stat_buf.st_mode ) )
     {
         DEBUG( "Archiving regular file" );
+        
+        /* Archives a single file */
+        status = egpack_archive_file( source, 0, destination );
+    }
+    else if( S_ISLNK( stat_buf.st_mode ) )
+    {
+        DEBUG( "Archiving symbolic link" );
         
         /* Archives a single file */
         status = egpack_archive_file( source, 0, destination );
@@ -218,7 +225,7 @@ egpack_status egpack_archive_dir( char * dirname, unsigned int depth, FILE * des
         else
         {
             /* Gets informations about the subfile */
-            if( stat( filename, &stat_buf ) != 0 )
+            if( lstat( filename, &stat_buf ) != 0 )
             {
                 free( filename );
                 closedir( dp );
@@ -248,6 +255,21 @@ egpack_status egpack_archive_dir( char * dirname, unsigned int depth, FILE * des
                 
                 /* Archives a subfile */
                 status = egpack_archive_file( filename, depth + 1, destination );
+                
+                if( status != EGPACK_OK )
+                {
+                    free( filename );
+                    closedir( dp );
+                    
+                    return status;
+                }
+            }
+            else if( S_ISLNK( stat_buf.st_mode ) )
+            {
+                DEBUG( "Archiving symbolic link: %s", filename );
+                
+                /* Archives a subfile */
+                status = egpack_archive_link( filename, depth + 1, destination );
                 
                 if( status != EGPACK_OK )
                 {
@@ -404,6 +426,90 @@ egpack_status egpack_archive_file( char * filename, unsigned int depth, FILE * d
     
     DEBUG( "Closing file handle" );
     fclose( fp );
+    
+    return EGPACK_OK;
+}
+
+/*!
+ * @function    egpack_archive_link
+ * @abstract    Archives a symbolic link into destination file
+ * @param       dirname     The name of the file
+ * @param       depth       The depth from the archive's root directory
+ * @param       destination The archive file pointer
+ * @result      The status code
+ */
+egpack_status egpack_archive_link( char * filename, unsigned int depth, FILE * destination )
+{
+    struct stat                 stat_buf;
+    egpack_header_entry         entry;
+    egpack_header_entry_symlink symlnk;
+    unsigned int                i;
+    unsigned int                length;
+    
+    /* Gets informations about the file */
+    if( lstat( filename, &stat_buf ) != 0 )
+    {
+        return EGPACK_ERROR_STAT;
+    }
+    
+    /* Header initialization */
+    memset( &entry, 0, sizeof( egpack_header_entry ) );
+    memset( &symlnk,  0, sizeof( egpack_header_entry_symlink ) );
+    
+    /* Length of the file name */
+    length = strlen( filename );
+    
+    /* Gets only the basename */
+    for( i = length; i > 0; i-- )
+    {
+        if( filename[ i - 1 ] == EGPACK_DIR_SEPARATOR_CHAR )
+        {
+            break;
+        }
+    }
+    
+    strcpy( ( char * )( symlnk.name ), filename + i );
+    readlink( filename, ( char * )symlnk.target, EGPK_SYMLINK_TARGET_MAX - 1 );
+    
+    /* Entry fields */
+    entry.type  = EGPACK_ENTRY_TYPE_SYMLINK;
+    entry.depth = depth;
+    
+    /* File fields */
+    symlnk.ctime  = stat_buf.st_ctime;
+    symlnk.mtime  = stat_buf.st_mtime;
+    symlnk.atime  = stat_buf.st_atime;
+    symlnk.mode   = stat_buf.st_mode;
+    symlnk.uid    = stat_buf.st_uid;
+    symlnk.gid    = stat_buf.st_gid;
+    
+    DEBUG
+    (
+        "Symbolic link infos: %s\n"
+        "    - Base name:         %s\n"
+        "    - Target:            %s\n"
+        "    - Depth:             %u\n"
+        "    - Creation time:     %lu\n"
+        "    - Modification time: %lu\n"
+        "    - Access time:       %lu\n"
+        "    - Mode:              0x%X\n"
+        "    - UID:               %u\n"
+        "    - GID:               %u",
+        filename,
+        symlnk.name,
+        symlnk.target,
+        depth,
+        symlnk.ctime,
+        symlnk.mtime,
+        symlnk.atime,
+        symlnk.mode,
+        symlnk.uid,
+        symlnk.gid
+    );
+    
+    /* Writes the entry and file headers */
+    fwrite( &entry, sizeof( egpack_header_entry ),      1, destination );
+    fwrite( &symlnk,  sizeof( egpack_header_entry_symlink ), 1, destination );
     
     return EGPACK_OK;
 }

@@ -102,13 +102,15 @@ extern "C" {
     /*!
      * @typedef     egpack_entry_type
      * @abstract    EGPK entry type
-     * @constant    EGPACK_ENTRY_TYPE_FILE  
-     * @constant    EGPACK_ENTRY_TYPE_DIR   
+     * @constant    EGPACK_ENTRY_TYPE_FILE      Regular file
+     * @constant    EGPACK_ENTRY_TYPE_DIR       Directory
+     * @constant    EGPACK_ENTRY_TYPE_SYMLINK   Symbolic link
      */
     typedef enum
     {
-        EGPACK_ENTRY_TYPE_FILE  = 0x00,
-        EGPACK_ENTRY_TYPE_DIR   = 0x01
+        EGPACK_ENTRY_TYPE_FILE      = 0x00,
+        EGPACK_ENTRY_TYPE_DIR       = 0x01,
+        EGPACK_ENTRY_TYPE_SYMLINK   = 0x02
     }
     egpack_entry_type;
     
@@ -167,6 +169,34 @@ extern "C" {
     egpack_header_entry_dir;
     
     /*!
+     * @typedef     egpack_header_entry_file
+     * @abstract    EGPK symbolic link entry header
+     * @field       name    File name
+     * @field       target  Symbolic link target
+     * @field       size    File size in bytes
+     * @field       ctime   Creation time
+     * @field       mtime   Last modification time
+     * @field       atime   Last access time
+     * @field       mode    File mode
+     * @field       uid     User ID
+     * @field       gif     Group ID
+     * @field       pad     Reserved bits
+     */
+    typedef struct _egpack_header_entry_symlink
+    {
+        uint8_t   name[ EGPK_FILENAME_MAX ];
+        uint8_t   target[ EGPK_SYMLINK_TARGET_MAX ];
+        uint32_t  ctime;
+        uint32_t  mtime;
+        uint32_t  atime;
+        uint32_t  mode;
+        uint32_t  uid;
+        uint32_t  gid;
+        uint8_t   pad[ 64 ];
+    }
+    egpack_header_entry_symlink;
+    
+    /*!
      * @typedef     egpack_status
      * @abstract    EGPK status codes
      * constant     EGPACK_OK                       No error
@@ -180,6 +210,8 @@ extern "C" {
      * constant     EGPACK_ERROR_INVALID_ENTRY      Invalid file entry
      * constant     EGPACK_ERROR_MKDIR              Error with the mkdir() function
      * constant     EGPACK_ERROR_CHMOD              Error with the chmod() function
+     * constant     EGPACK_ERROR_READLINK           Error with the readlink() function
+     * constant     EGPACK_ERROR_SYMLINK            Error with the symlink() function
      */
     typedef enum
     {
@@ -193,7 +225,9 @@ extern "C" {
         EGPACK_ERROR_MD5            = 0x07,
         EGPACK_ERROR_INVALID_ENTRY  = 0x08,
         EGPACK_ERROR_MKDIR          = 0x09,
-        EGPACK_ERROR_CHMOD          = 0x0A
+        EGPACK_ERROR_CHMOD          = 0x0A,
+        EGPACK_ERROR_READLINK       = 0x0B,
+        EGPACK_ERROR_SYMLINK        = 0x0C
     }
     egpack_status;
     

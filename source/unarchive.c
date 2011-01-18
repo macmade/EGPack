@@ -230,6 +230,19 @@ egpack_status egpack_unarchive_dir( FILE * source, unsigned int depth, char * de
                 return status;
             }
         }
+        else if( entry.type == EGPACK_ENTRY_TYPE_SYMLINK )
+        {
+            DEBUG( "Un-archiving symbolic link" );
+            
+            /* Un-archives a directory */
+            status = egpack_unarchive_link( source, entry.depth, ( depth == 0 ) ? destination : filename );
+            
+            if( status != EGPACK_OK )
+            {
+                free( filename );
+                return status;
+            }
+        }
         else
         {
             free( filename );
@@ -331,7 +344,7 @@ egpack_status egpack_unarchive_file( FILE * source, unsigned int depth, char * d
         file.md5
     );
     
-    DEBUG( "Opening file handle: %s", ( depth == 0 ) ? destination : filename );
+    DEBUG( "Opening the file handle: %s", ( depth == 0 ) ? destination : filename );
     
     /* Opens a file handle */
     if( NULL == ( fp = fopen( ( depth == 0 ) ? destination : filename, "wb" ) ) )
@@ -367,8 +380,74 @@ egpack_status egpack_unarchive_file( FILE * source, unsigned int depth, char * d
     fread( buffer, sizeof( uint8_t ), bytes, source );
     fwrite( buffer, sizeof( uint8_t ), bytes, fp );
     
-    DEBUG( "Closing file handle" );
+    DEBUG( "Closing the file handle" );
     fclose( fp );
+    
+    return EGPACK_OK;
+}
+
+/*!
+ * @function    egpack_unarchive_link
+ * @abstract    Un-archives source file into destination symbolic link
+ * @param       source      The archive file pointer
+ * @param       depth       The depth from the archive's root directory
+ * @param       destination The path in wich to write the archive symolic link
+ * @result      The status code
+ */
+egpack_status egpack_unarchive_link( FILE * source, unsigned int depth, char * destination )
+{
+    egpack_header_entry_symlink lnk;
+    char                      * filename;
+    size_t                      path_length;
+    
+    fread( &lnk, sizeof( egpack_header_entry_symlink ), 1, source );
+    
+    /* Length for the file path */
+    path_length = strlen( destination ) + EGPK_FILENAME_MAX + 2;
+    
+    /* Allocates memory for the file path */
+    if( NULL == ( filename = calloc( sizeof( char ), path_length ) ) )
+    {
+        return EGPACK_ERROR_MALLOC;
+    }
+    
+    /* Full file path */
+    memset( filename, 0, path_length );
+    strcpy( ( char * )filename, destination );
+    strcat( ( char * )filename, EGPACK_DIR_SEPARATOR );
+    strcat( ( char * )filename, ( char * )( lnk.name ) );
+    
+    DEBUG
+    (
+        "Symbolic link infos: %s\n"
+        "    - Base name:         %s\n"
+        "    - Target:            %s\n"
+        "    - Depth:             %u\n"
+        "    - Creation time:     %lu\n"
+        "    - Modification time: %lu\n"
+        "    - Access time:       %lu\n"
+        "    - Mode:              0x%X\n"
+        "    - UID:               %u\n"
+        "    - GID:               %u",
+        ( depth == 0 ) ? destination : filename,
+        lnk.name,
+        lnk.target,
+        depth,
+        lnk.ctime,
+        lnk.mtime,
+        lnk.atime,
+        lnk.mode,
+        lnk.uid,
+        lnk.gid
+    );
+    
+    DEBUG( "Creating symbolic link" );
+    
+    /* Creates the symbolic link */
+    if( symlink( ( char * )( lnk.target ), ( depth == 0 ) ? destination : filename ) != 0 )
+    {
+        return EGPACK_ERROR_SYMLINK;
+    }
     
     return EGPACK_OK;
 }

@@ -72,6 +72,16 @@ extern "C" {
      */
     egpack_status egpack_unarchive_file( FILE * source, unsigned int depth, char * destination );
     
+    /*!
+     * @function    egpack_unarchive_link
+     * @abstract    Un-archives source file into destination symbolic link
+     * @param       source      The archive file pointer
+     * @param       depth       The depth from the archive's root directory
+     * @param       destination The path in wich to write the archive symolic link
+     * @result      The status code
+     */
+    egpack_status egpack_unarchive_link( FILE * source, unsigned int depth, char * destination );
+    
 #ifdef __cplusplus
 }
 #endif

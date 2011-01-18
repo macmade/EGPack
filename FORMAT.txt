@@ -128,11 +128,10 @@ A directory header is 1632 bytes long.
 
 In C, a file entry header is represented the following way:
 
-    struct egpack_header_entry_file
+    struct egpack_header_entry_symlink
     {
         uint8_t   name[ 512 ];
         uint8_t   target[ 1024 ];
-        uint64_t  size;
         uint32_t  ctime;
         uint32_t  mtime;
         uint32_t  atime;

@@ -71,6 +71,16 @@ extern "C" {
      * @result      The status code
      */
     egpack_status egpack_archive_file( char * filename, unsigned int depth, FILE * destination );
+
+    /*!
+     * @function    egpack_archive_link
+     * @abstract    Archives a symbolic link into destination file
+     * @param       dirname     The name of the file
+     * @param       depth       The depth from the archive's root directory
+     * @param       destination The archive file pointer
+     * @result      The status code
+     */
+    egpack_status egpack_archive_link( char * filename, unsigned int depth, FILE * destination );
     
 #ifdef __cplusplus
 }

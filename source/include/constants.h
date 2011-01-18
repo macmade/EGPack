@@ -86,6 +86,13 @@ extern "C" {
  */
 #define EGPK_FILENAME_MAX               512
 
+/*!
+ * @define      EGPK_SYMLINK_TARGET_MAX
+ * @abstract    The maximum number of characters to hold a symbolic link target,
+ *              including the trailing 0.
+ */
+#define EGPK_SYMLINK_TARGET_MAX         1024
+
 #ifdef __cplusplus
 }
 #endif

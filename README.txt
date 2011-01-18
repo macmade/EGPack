@@ -17,7 +17,7 @@ informations about the EGPK file format.
 Egpack should compile on every POSIX compliant operating system with an ANSI-C
 compiler.
 
-To compile EGPack, simply type `make` from a console prompte, from the EGPack
+To compile EGPack, simply type `make` from a console prompt, from the EGPack
 root directory.
 
 Installation of the `egpack` utility is done through the `make install`
@@ -55,5 +55,5 @@ http://www.eosgarden.com/en/opensource/egpack/
 
 ### License
 
-EGPack is a free software, distributed under the terms of the Boos license.     
+EGPack is a free software, distributed under the terms of the Boost license.     
 Please see `LICENSE.txt` for the full license terms.
