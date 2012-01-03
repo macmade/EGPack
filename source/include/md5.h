@@ -36,7 +36,27 @@
  */
 
 /* System includes */
-#include <openssl/md5.h>
+#if defined( __APPLE__ )
+    
+    #include <CommonCrypto/CommonDigest.h>
+    
+    #ifdef MD5_DIGEST_LENGTH
+        
+        #undef MD5_DIGEST_LENGTH
+        
+    #endif
+    
+    #define MD5_Init            CC_MD5_Init
+    #define MD5_Update          CC_MD5_Update
+    #define MD5_Final           CC_MD5_Final
+    #define MD5_DIGEST_LENGTH   CC_MD5_DIGEST_LENGTH
+    #define MD5_CTX             CC_MD5_CTX
+    
+#else
+    
+    #include <openssl/md5.h>
+
+#endif
 
 #ifndef _EGPACK_MD5_H_
 #define _EGPACK_MD5_H_
