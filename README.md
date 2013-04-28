@@ -1,10 +1,52 @@
 EGPack
 ======
 
+About
+-----
+
+EGPack is an archive utility, similar to the TAR utility.  
+
+Documentation
+-------------
+
+### Compiling and installing
+
+EGPack should compile on every POSIX compliant operating system with an ANSI-C
+compiler.
+
+To compile EGPack, simply type `make` from a console prompt, from the EGPack
+root directory.
+
+Installation of the `egpack` utility is done through the `make install`
+command.
+
+### Usage
+
+In order to archive a file or a directory, invoke the `egpack` binary with the
+`-a` argument, followed by the name of the file or directory to archive:
+
+    egpack -a path/to/directory/
+
+Un-archiving is done with the `-u`option:
+
+    egpack -u path/to/archive.egpk
+
+Here are the available command line arguments that can be passed to the `egpack`
+binary:
+
+*   -a                                                                          
+    Archives a file or a directory.
+*   -u                                                                          
+    Un-archives an EGPK archive file.
+*   -v                                                                          
+    Prints the EGPK version number.
+*   -h                                                                          
+    Prints the EGPK help dialog
+*   -d                                                                          
+    Turns on debugging mode
+
 File format specification
 -------------------------
-
-$Id$
 
 ### About
 
@@ -19,8 +61,7 @@ file(s) content.
 An EPKG file must start with the main header, which is 72 bytes long.
 
 The first four bytes represent the file format signature, which consists of
-the ASCII `EGPK` characters (0x45 0x47 0x50 0x4B).
-
+the ASCII `EGPK` characters (0x45 0x47 0x50 0x4B).  
 The next four bytes are used to store the archive creation time.
 
 Other bytes are reserved for format extension, and should be all zeros.
@@ -145,3 +186,19 @@ For files, the entry is followed by the file's data.
 
 For directories, the directory header is immediately followed by other entries
 headers.
+
+License
+-------
+
+EGPack is released under the terms of the Boost Software License - Version 1.0.
+
+Repository Infos
+----------------
+
+    Owner:			Jean-David Gadina - XS-Labs
+    Web:			www.xs-labs.com
+    Blog:			www.noxeos.com
+    Twitter:		@macmade
+    GitHub:			github.com/macmade
+    LinkedIn:		ch.linkedin.com/in/macmade/
+    StackOverflow:	stackoverflow.com/users/182676/macmade
