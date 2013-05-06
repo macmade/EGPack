@@ -248,7 +248,7 @@
 		05D31C3512E32E390073E764 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				ORGANIZATIONNAME = eosgarden;
+				ORGANIZATIONNAME = XS-Labs;
 			};
 			buildConfigurationList = 05D31C3812E32E390073E764 /* Build configuration list for PBXProject "egpack" */;
 			compatibilityVersion = "Xcode 3.2";
