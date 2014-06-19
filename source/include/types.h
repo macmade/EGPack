@@ -138,7 +138,7 @@ extern "C" {
         uint32_t  mode;
         uint32_t  uid;
         uint32_t  gid;
-        uint8_t   md5[ 32 ];
+        uint8_t   md5[ 33 ];
         uint8_t   pad[ 64 ];
     }
     egpack_header_entry_file;

@@ -38,10 +38,6 @@
 /* Local includes */
 #include "egpack.h"
 
-/* Private variables */
-static char         __last_md5[ MD5_DIGEST_LENGTH * 2 + 1 ];
-static FILE       * __last_fp;
-
 /*!
  * @function    egpack_file_md5_checksum
  * @abstract    Gets a MD5 checksum of a file pointer
@@ -60,15 +56,8 @@ void egpack_file_md5_checksum( FILE * fp, char * hash )
     char                tmp[ EGPACK_BUFFER_LENGTH ];
     char                hex[ 3 ] = { 0, 0, 0 };
     
-    /* Checks if the last checksum can be used */
-    if( fp == __last_fp )
-    {
-        strcpy( hash, __last_md5 );
-        return;
-    }
-    
-    /* Stores the address of the file pointer */
-    __last_fp = fp;
+    /* Ensures the buffer is clear */
+    memset( hash, 0, MD5_DIGEST_LENGTH * 2 + 1 );
     
     /* File size and current offset */
     size      = fsize( fp );
@@ -97,9 +86,6 @@ void egpack_file_md5_checksum( FILE * fp, char * hash )
         sprintf( hex, "%02x", digest[ i ] );
         strcat( hash, hex );
     }
-    
-    /* Copies the MD5 hash */
-    strcpy( __last_md5, hash );
     
     /* Seeks to the original position */
     fseek( fp, offset, SEEK_SET );
