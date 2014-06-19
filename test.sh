@@ -1,9 +1,6 @@
 #/bin/bash/
 
 rm -rf test-files-*
-rm *.egpk
-
-clear
 
 if [ "$1" ] && [ "$1" -gt 0 ]; then
     
