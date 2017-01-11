@@ -77,7 +77,7 @@ DEPS_LIB_egpack     = libdebug libio libprogressbar
 # Dependancies for the executables (system libraries)
 #-------------------------------------------------------------------------------
 
-DEPS_SYSLIB_egpack  = crypto
+DEPS_SYSLIB_egpack  = 
 
 #-------------------------------------------------------------------------------
 # Used frameworks (relevant only for Objective-C)

@@ -46,7 +46,6 @@ extern "C" {
     /* System includes */
     #include <stdc/bool.h>
     #include <stdint.h>
-    #include <openssl/md5.h>
     
     /*!
      * @typedef     egpack_cli_args
